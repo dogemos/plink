@@ -7,9 +7,20 @@ export interface AllowedCurrency {
   bech32Prefix: string;
   symbol: string;
   chainName: string;
+  logoUrl: string;
 }
 
 export const ALLOWED_CURRENCIES: readonly AllowedCurrency[] = [
+  {
+    caip2: "cosmos:noble-1",
+    denom: "uusdc",
+    decimals: 6,
+    bech32Prefix: "noble",
+    symbol: "USDC",
+    chainName: "Noble",
+    logoUrl:
+      "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/noble/uusdc.png",
+  },
   {
     caip2: "cosmos:cosmoshub-4",
     denom: "uatom",
@@ -17,6 +28,8 @@ export const ALLOWED_CURRENCIES: readonly AllowedCurrency[] = [
     bech32Prefix: "cosmos",
     symbol: "ATOM",
     chainName: "Cosmos Hub",
+    logoUrl:
+      "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/cosmoshub/uatom.png",
   },
   {
     caip2: "cosmos:osmosis-1",
@@ -25,6 +38,8 @@ export const ALLOWED_CURRENCIES: readonly AllowedCurrency[] = [
     bech32Prefix: "osmo",
     symbol: "OSMO",
     chainName: "Osmosis",
+    logoUrl:
+      "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/osmosis/uosmo.png",
   },
   {
     caip2: "cosmos:celestia",
@@ -33,14 +48,8 @@ export const ALLOWED_CURRENCIES: readonly AllowedCurrency[] = [
     bech32Prefix: "celestia",
     symbol: "TIA",
     chainName: "Celestia",
-  },
-  {
-    caip2: "cosmos:noble-1",
-    denom: "uusdc",
-    decimals: 6,
-    bech32Prefix: "noble",
-    symbol: "USDC",
-    chainName: "Noble",
+    logoUrl:
+      "https://raw.githubusercontent.com/chainapsis/keplr-chain-registry/main/images/celestia/utia.png",
   },
 ] as const;
 

@@ -2,17 +2,20 @@ import { IntentForm } from "@/components/intent-form";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-start justify-center bg-zinc-50 px-4 py-16 font-sans dark:bg-black">
-      <main className="flex w-full max-w-md flex-col items-center">
-        <h1
-          className="mb-2 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100"
-          style={{ textWrap: "balance" }}
-        >
-          Pay with Link
-        </h1>
-        <p className="mb-8 text-center text-sm text-zinc-600 dark:text-zinc-400">
-          Create a shareable payment link for Cosmos ecosystem tokens.
-        </p>
+    <div className="min-h-screen px-4 py-10 sm:py-14">
+      <main className="mx-auto w-full max-w-xl">
+        <header className="mb-10 text-center sm:mb-12">
+          <p className="mb-4 inline-flex items-center rounded-full border border-sky-500/40 bg-sky-500/10 px-3 py-1 text-xs font-semibold tracking-wide text-sky-200">
+            Simple and verifiable
+          </p>
+          <h1
+            className="text-balance text-3xl font-semibold text-slate-100 sm:text-5xl"
+            style={{ textWrap: "balance" }}
+          >
+            One link. They verify, then pay.
+          </h1>
+        </header>
+
         <IntentForm />
       </main>
     </div>

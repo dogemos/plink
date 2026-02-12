@@ -15,6 +15,11 @@ type KeplrState =
   | { status: "connecting" }
   | { status: "connected"; address: string; name: string };
 
+function shortenAddress(address: string): string {
+  if (address.length <= 20) return address;
+  return `${address.slice(0, 10)}...${address.slice(-8)}`;
+}
+
 export function KeplrConnectButton({
   chainInfo,
   onConnect,
@@ -23,7 +28,6 @@ export function KeplrConnectButton({
   const [state, setState] = useState<KeplrState>({ status: "disconnected" });
 
   useEffect(() => {
-    // Keplr injects asynchronously, check after short delay
     const timer = setTimeout(() => {
       if (!window.keplr) {
         setState({ status: "not-installed" });
@@ -35,26 +39,28 @@ export function KeplrConnectButton({
 
   useEffect(() => {
     const handleKeystoreChange = () => {
-      if (state.status === "connected") {
-        // Re-fetch account on keystore change
-        window.keplr?.getKey(chainInfo.chainId).then((key) => {
+      if (state.status !== "connected") return;
+
+      window.keplr
+        ?.getKey(chainInfo.chainId)
+        .then((key) => {
           setState({
             status: "connected",
             address: key.bech32Address,
             name: key.name,
           });
           onConnect(key.bech32Address);
-        }).catch(() => {
+        })
+        .catch(() => {
           setState({ status: "disconnected" });
           onDisconnect();
         });
-      }
     };
 
     window.addEventListener("keplr_keystorechange", handleKeystoreChange);
     return () =>
       window.removeEventListener("keplr_keystorechange", handleKeystoreChange);
-  }, [chainInfo.chainId, state.status, onConnect, onDisconnect]);
+  }, [chainInfo.chainId, onConnect, onDisconnect, state.status]);
 
   const handleConnect = useCallback(async () => {
     if (!window.keplr) {
@@ -65,7 +71,6 @@ export function KeplrConnectButton({
     setState({ status: "connecting" });
 
     try {
-      // Suggest chain if not known to Keplr
       try {
         await window.keplr.enable(chainInfo.chainId);
       } catch {
@@ -96,28 +101,24 @@ export function KeplrConnectButton({
         href="https://www.keplr.app/download"
         target="_blank"
         rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+        className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm font-semibold text-slate-100 transition-colors hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50"
       >
-        Install Keplr Wallet
+        Get Keplr Wallet
       </a>
     );
   }
 
   if (state.status === "connected") {
     return (
-      <div className="flex items-center gap-3">
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-            {state.name}
-          </p>
-          <p className="truncate font-mono text-xs text-zinc-500 dark:text-zinc-400">
-            {state.address}
-          </p>
-        </div>
+      <div className="rounded-xl border border-slate-700 bg-slate-900 p-3">
+        <p className="text-sm font-semibold text-slate-100">{state.name}</p>
+        <p className="mt-1 font-mono text-xs text-slate-400">
+          {shortenAddress(state.address)}
+        </p>
         <button
           type="button"
           onClick={handleDisconnect}
-          className="shrink-0 rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-800"
+          className="mt-3 inline-flex min-h-11 cursor-pointer items-center justify-center rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-sm font-semibold text-slate-200 transition-colors hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500/50"
           style={{ touchAction: "manipulation" }}
         >
           Disconnect
@@ -131,10 +132,10 @@ export function KeplrConnectButton({
       type="button"
       onClick={handleConnect}
       disabled={state.status === "connecting"}
-      className="inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+      className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition-colors hover:bg-sky-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 disabled:opacity-90"
       style={{ touchAction: "manipulation" }}
     >
-      {state.status === "connecting" ? "Connecting\u2026" : "Connect Keplr"}
+      {state.status === "connecting" ? "Connecting..." : "Connect wallet"}
     </button>
   );
 }

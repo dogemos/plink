@@ -1,26 +1,153 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #020617;
+  --surface: #0b1220;
+  --surface-muted: #111a2d;
+  --foreground: #e2e8f0;
+  --foreground-soft: #94a3b8;
+  --border: #243047;
+  --brand: #38bdf8;
+  --brand-strong: #0ea5e9;
+  --brand-soft: #0b2840;
+  --success: #10b981;
+  --success-soft: #07291f;
+  --error: #f87171;
+  --error-soft: #3b1218;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-code);
+  --font-display: var(--font-heading);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), sans-serif;
+  min-height: 100vh;
+  line-height: 1.55;
+  color-scheme: dark;
+  background-image:
+    radial-gradient(circle at 0% 0%, #102846 0, transparent 42%),
+    radial-gradient(circle at 100% 100%, #1d183f 0, transparent 38%);
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading), sans-serif;
+  letter-spacing: -0.015em;
+}
+
+::selection {
+  background: var(--brand-soft);
+  color: #dff5ff;
+}
+
+@keyframes delight-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes delight-toast-in {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 10px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@keyframes delight-burst {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.2);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px) scale(1.15);
+  }
+}
+
+.delight-pop {
+  animation: delight-pop 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.delight-toast {
+  animation: delight-toast-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.delight-burst {
+  animation: delight-burst 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes step-enter-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes step-enter-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.step-forward {
+  animation: step-enter-right 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.step-backward {
+  animation: step-enter-left 280ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes qr-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scaleY(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+.qr-slide-down {
+  animation: qr-slide-down 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: top center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
