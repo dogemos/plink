@@ -1,21 +1,29 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { JetBrains_Mono, Lexend, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const headingFont = Lexend({
+  variable: "--font-heading",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const bodyFont = Source_Sans_3({
+  variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const monoFont = JetBrains_Mono({
+  variable: "--font-code",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
   title: "Pay with Link",
   description:
-    "Create and share payment links for Cosmos ecosystem tokens. Send ATOM, OSMO, TIA, and USDC with a simple URL.",
+    "Request crypto payments with a single link. ATOM, OSMO, TIA, USDC.",
 };
 
 export default function RootLayout({
@@ -32,7 +40,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://noble-rpc.polkachu.com" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${headingFont.variable} ${bodyFont.variable} ${monoFont.variable} antialiased`}
       >
         {children}
       </body>

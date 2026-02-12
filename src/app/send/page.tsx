@@ -27,7 +27,7 @@ function resolveState(hash: string): ResolvedState {
   if (!hash) {
     return {
       status: "error",
-      message: "No payment intent found. This link may be incomplete.",
+      message: "No payment details found. The link might be incomplete or expired.",
     };
   }
 
@@ -59,11 +59,11 @@ export default function SendPage() {
 
   if (isSSR) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black">
-        <div className="w-full max-w-md space-y-4 px-4">
-          <div className="h-8 w-48 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
-          <div className="h-64 animate-pulse rounded-lg bg-zinc-200 dark:bg-zinc-800" />
-          <div className="h-12 animate-pulse rounded-lg bg-zinc-200 dark:bg-zinc-800" />
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <div className="w-full max-w-3xl space-y-5">
+          <div className="h-10 w-64 animate-pulse rounded-xl bg-slate-800" />
+          <div className="h-64 animate-pulse rounded-3xl bg-slate-800" />
+          <div className="h-44 animate-pulse rounded-3xl bg-slate-800" />
         </div>
       </div>
     );
@@ -73,19 +73,17 @@ export default function SendPage() {
 
   if (state.status === "error") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-black">
-        <div className="w-full max-w-md rounded-lg border border-red-200 bg-red-50 p-6 dark:border-red-800 dark:bg-red-900/20">
-          <h1 className="mb-2 text-lg font-semibold text-red-700 dark:text-red-400">
-            Invalid Payment Link
+      <div className="flex min-h-screen items-center justify-center px-4">
+        <div className="w-full max-w-md rounded-3xl border border-red-500/35 bg-red-500/10 p-6 shadow-[0_18px_36px_-24px_rgba(127,29,29,0.5)]">
+          <h1 className="mb-2 text-xl font-semibold text-red-200">
+            This link isn&apos;t valid
           </h1>
-          <p className="text-sm text-red-600 dark:text-red-400">
-            {state.message}
-          </p>
+          <p className="text-sm text-red-300">{state.message}</p>
           <Link
             href="/"
-            className="mt-4 inline-block text-sm font-medium text-red-700 underline hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+            className="mt-4 inline-flex min-h-11 cursor-pointer items-center rounded-xl border border-red-500/45 bg-red-500/15 px-4 py-2 text-sm font-semibold text-red-200 transition-colors hover:bg-red-500/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/40"
           >
-            Create a new payment link
+            Create a new link
           </Link>
         </div>
       </div>
@@ -93,8 +91,23 @@ export default function SendPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-start justify-center bg-zinc-50 px-4 py-16 dark:bg-black">
-      <PaymentPreview intent={state.intent} />
+    <div className="min-h-screen px-4 py-10 sm:py-14">
+      <main className="mx-auto w-full max-w-xl">
+        <header className="mb-10 text-center">
+          <p className="mb-4 inline-flex items-center rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs font-semibold tracking-wide text-emerald-200">
+            Check, then pay
+          </p>
+          <h1 className="text-balance text-3xl font-semibold text-slate-100 sm:text-4xl">
+            Review before you pay
+          </h1>
+          <p className="mx-auto mt-3 max-w-2xl text-sm text-slate-300 sm:text-base">
+            You&apos;ll see the exact amount, recipient, and chain. Nothing
+            moves until you confirm in your wallet.
+          </p>
+        </header>
+
+        <PaymentPreview intent={state.intent} />
+      </main>
     </div>
   );
 }
