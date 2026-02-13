@@ -156,3 +156,7 @@ export function getExplorerTxUrl(caip2Id: string, txHash: string): string {
   if (!entry) return "";
   return entry.explorerTxUrl.replace("{hash}", txHash);
 }
+
+export function getRpcEndpoint(caip2Id: string): string | undefined {
+  return CHAIN_REGISTRY[caip2Id]?.chainInfo.rpc;
+}

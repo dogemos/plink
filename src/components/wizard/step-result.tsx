@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { QRCodeDisplay } from "../qr-code";
+import { useLinkStatus } from "@/hooks/use-link-status";
 
 function ClipboardIcon() {
   return (
@@ -73,6 +74,7 @@ function QRIcon() {
 
 interface StepResultProps {
   url: string;
+  linkId: string | null;
   copied: boolean;
   showBurst: boolean;
   shareSupported: boolean;
@@ -83,6 +85,7 @@ interface StepResultProps {
 
 export function StepResult({
   url,
+  linkId,
   copied,
   showBurst,
   shareSupported,
@@ -91,6 +94,7 @@ export function StepResult({
   onReset,
 }: StepResultProps) {
   const [showQR, setShowQR] = useState(false);
+  const linkStatus = useLinkStatus(linkId);
 
   return (
     <div className="space-y-4">
@@ -165,6 +169,50 @@ export function StepResult({
           <p className="mt-3 text-xs text-slate-400">
             Scan to open the payment link
           </p>
+        </div>
+      )}
+
+      {/* Live payment status */}
+      {linkId && (
+        <div className="rounded-2xl border border-slate-700 bg-slate-900/60 p-4">
+          {!linkStatus || linkStatus.status === "pending" ? (
+            <div className="flex items-center gap-3">
+              <span
+                aria-hidden
+                className="h-3 w-3 animate-pulse rounded-full bg-amber-400"
+              />
+              <p className="text-sm text-slate-300">
+                Waiting for payment...
+              </p>
+            </div>
+          ) : linkStatus.status === "paid" ? (
+            <div className="flex items-center gap-3">
+              <span
+                aria-hidden
+                className="h-3 w-3 rounded-full bg-emerald-400"
+              />
+              <div>
+                <p className="text-sm font-semibold text-emerald-200">
+                  Payment received
+                </p>
+                {linkStatus.paidAt && (
+                  <p className="mt-0.5 text-xs text-slate-400">
+                    {new Date(linkStatus.paidAt).toLocaleString()}
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <span
+                aria-hidden
+                className="h-3 w-3 rounded-full bg-red-400"
+              />
+              <p className="text-sm text-red-300">
+                This link has expired.
+              </p>
+            </div>
+          )}
         </div>
       )}
 

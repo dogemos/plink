@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Lexend, Source_Sans_3 } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 
 const headingFont = Lexend({
@@ -42,6 +43,14 @@ export default function RootLayout({
       <body
         className={`${headingFont.variable} ${bodyFont.variable} ${monoFont.variable} antialiased`}
       >
+        <nav className="px-4 pt-4 sm:px-6 sm:pt-5">
+          <Link
+            href="/"
+            className="inline-flex items-center text-sm font-semibold text-slate-500 transition-colors hover:text-slate-200"
+          >
+            Pay with Link
+          </Link>
+        </nav>
         {children}
       </body>
     </html>
