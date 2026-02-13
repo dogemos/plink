@@ -16,6 +16,7 @@ import { KeplrConnectButton } from "./keplr-connect-button";
 
 interface PaymentPreviewProps {
   intent: PaymentIntent;
+  linkId?: string;
 }
 
 type TxState =
@@ -60,7 +61,7 @@ function getStepStyles(status: StepStatus): {
   };
 }
 
-export function PaymentPreview({ intent }: PaymentPreviewProps) {
+export function PaymentPreview({ intent, linkId }: PaymentPreviewProps) {
   const [senderAddress, setSenderAddress] = useState<string | null>(null);
   const [txState, setTxState] = useState<TxState>({ status: "idle" });
   const [showSuccessBurst, setShowSuccessBurst] = useState(false);
@@ -121,6 +122,20 @@ export function PaymentPreview({ intent }: PaymentPreviewProps) {
         setShowSuccessBurst(true);
         triggerLightHaptic();
         setTimeout(() => setShowSuccessBurst(false), 900);
+
+        // Report payment to backend for verification (fire-and-forget)
+        if (linkId) {
+          fetch(`/api/links/${linkId}/pay`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              txHash: result.txHash,
+              payerAddress: senderAddress,
+            }),
+          }).catch(() => {
+            // Best-effort: payment is already on-chain
+          });
+        }
       } else {
         setTxState({
           status: "error",
@@ -142,7 +157,7 @@ export function PaymentPreview({ intent }: PaymentPreviewProps) {
         setTxState({ status: "error", message });
       }
     }
-  }, [chainInfo, intent, senderAddress, triggerLightHaptic]);
+  }, [chainInfo, intent, linkId, senderAddress, triggerLightHaptic]);
 
   if (!currency || !chainEntry || !chainInfo) {
     return (

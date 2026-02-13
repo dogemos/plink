@@ -4,7 +4,6 @@ import { useCallback, useRef, useMemo, useState } from "react";
 import {
   ALLOWED_CURRENCIES,
   type AllowedCurrency,
-  type PaymentIntent,
 } from "@/lib/intent-schema";
 import { buildPaymentUrl } from "@/lib/intent-url";
 import { displayToBaseAmount, validateAddress } from "@/lib/validation";
@@ -34,6 +33,7 @@ export function IntentForm() {
   const [label, setLabel] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
+  const [generatedLinkId, setGeneratedLinkId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [showCopiedToast, setShowCopiedToast] = useState(false);
   const [showSuccessBurst, setShowSuccessBurst] = useState(false);
@@ -83,6 +83,7 @@ export function IntentForm() {
     setLabel("");
     setErrors({});
     setGeneratedUrl(null);
+    setGeneratedLinkId(null);
     setCopied(false);
     setShowCopiedToast(false);
   }, []);
@@ -154,20 +155,7 @@ export function IntentForm() {
     const normalizedMemo = memo.trim();
     const normalizedLabel = label.trim();
 
-    const intent: PaymentIntent = {
-      v: "1" as const,
-      c: selectedCurrency.caip2,
-      d: selectedCurrency.denom,
-      to: normalizedRecipient,
-      a: amountInBase,
-      ...(normalizedMemo ? { m: normalizedMemo } : {}),
-      ...(normalizedLabel ? { label: normalizedLabel } : {}),
-    };
-
-    // Build URL immediately but animate the reveal
-    const url = buildPaymentUrl(intent, window.location.origin);
-
-    // Start the cooking animation
+    // Start the cooking animation immediately
     setDirection("forward");
     setStep(3);
     setIsGenerating(true);
@@ -187,19 +175,57 @@ export function IntentForm() {
       timers.push(setTimeout(() => setGeneratingMessage(text), delay));
     }
 
-    // Finish: reveal the result
-    timers.push(
-      setTimeout(() => {
-        setGeneratedUrl(url);
-        setCopied(false);
-        setIsGenerating(false);
-        setShowSuccessBurst(true);
-        triggerLightHaptic();
-        setTimeout(() => setShowSuccessBurst(false), 900);
-      }, 1800),
-    );
-
     generatingTimers.current = timers;
+
+    // Call the backend API to create the link
+    const createServerLink = async (): Promise<{ url: string; id: string | null }> => {
+      try {
+        const res = await fetch("/api/links", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            c: selectedCurrency.caip2,
+            d: selectedCurrency.denom,
+            to: normalizedRecipient,
+            a: amountInBase,
+            ...(normalizedMemo ? { m: normalizedMemo } : {}),
+            ...(normalizedLabel ? { label: normalizedLabel } : {}),
+          }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          return { url: data.url, id: data.id };
+        }
+      } catch {
+        // Fall through to hash-based fallback
+      }
+
+      // Fallback: generate a hash-based URL (no tracking)
+      const intent = {
+        v: "1" as const,
+        c: selectedCurrency.caip2,
+        d: selectedCurrency.denom,
+        to: normalizedRecipient,
+        a: amountInBase,
+        ...(normalizedMemo ? { m: normalizedMemo } : {}),
+        ...(normalizedLabel ? { label: normalizedLabel } : {}),
+      };
+      return { url: buildPaymentUrl(intent, window.location.origin), id: null };
+    };
+
+    // Run API call and wait for minimum animation time
+    const apiPromise = createServerLink();
+    const minDelay = new Promise<void>((r) => setTimeout(r, 1800));
+
+    Promise.all([apiPromise, minDelay]).then(([{ url, id }]) => {
+      setGeneratedUrl(url);
+      setGeneratedLinkId(id);
+      setCopied(false);
+      setIsGenerating(false);
+      setShowSuccessBurst(true);
+      triggerLightHaptic();
+      setTimeout(() => setShowSuccessBurst(false), 900);
+    });
   }, [
     amountInBase,
     label,
@@ -297,6 +323,7 @@ export function IntentForm() {
         return generatedUrl ? (
           <StepResult
             url={generatedUrl}
+            linkId={generatedLinkId}
             copied={copied}
             showBurst={showSuccessBurst}
             shareSupported={shareSupported}
